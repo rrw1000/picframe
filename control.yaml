@@ -1,0 +1,15 @@
+compose:
+  - fixed:
+      - 'an accurate image of '
+  - some_of:
+      - "beautiful"
+      - "realistic"
+      - "artistic"
+  - one_of:
+      - "otters"
+      - "swans"
+      - "cat"
+  - one_of:
+      - "as a stained glass window"
+      - "in the style of the impressionists"
+      - "as a realistic photograph"
