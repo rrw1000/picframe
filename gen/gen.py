@@ -41,18 +41,26 @@ class Description:
         return " ".join(result)
 
 class ImagePipeline:
-    def __init__(self):
+    def __init__(self, inf_steps, guide):
         # Dynamic import so we don't do the GPU initialisation until we have to.
         diffusers = __import__("diffusers")
         #from diffusers import AutoPipelineForText2Image
         self.pipe = diffusers.AutoPipelineForText2Image.from_pretrained("stabilityai/sd-turbo", torch_dtype=torch.float16, variant="fp16")
         # Beware - if you want this on your CPU, you'll need to not use fp16
         self.pipe.to("cuda")
+        self.inference_steps = inf_steps
+        self.guidance_scale = guide
 
     def generate_image(self, prompt):
-        image = self.pipe(prompt = prompt, num_inference_steps = 3, guidance_scale = 0.0)
+        image = self.pipe(prompt = prompt, num_inference_steps = self.inference_steps, guidance_scale = self.guidance_scale)
         return image.images[0]
 
+    def generate_image_inky7(self, prompt):
+        img = self.generate_image(prompt)
+        # Center cut (one day we'll do this with a proper resizer)
+        resized =  img.resize((800,800))
+        to_crop = (800-480)/2
+        return resized.crop((0, to_crop, 800, 800-to_crop))
 
 class GiveUp(Exception):
     pass
@@ -61,18 +69,20 @@ class GiveUp(Exception):
 @click.option("--seed", default=None)
 @click.option("--batch-size", default=4)
 @click.option("--image-dir", default = None)
-def go(seed, batch_size, image_dir):
+@click.option("--inference-steps", default=8)
+@click.option("--guidance-scale", default=0.0)
+def go(seed, batch_size, image_dir, inference_steps, guidance_scale):
     desc = Description()
     if seed is None:
         seed = time.time()
     if image_dir is None:
         raise GiveUp("You must specify an image directory with --image-dir")
     rand = random.Random(seed)
-    pipe = ImagePipeline()
+    pipe = ImagePipeline(inference_steps, guidance_scale)
     for i in range(batch_size):
         d = desc.make_description(rand)
         print(f" - {d}")
-        img = pipe.generate_image(d)
+        img = pipe.generate_image_inky7(d)
         stem = os.path.join(image_dir, f"{seed}_{i}")
         with open(f"{stem}.txt", 'w') as f:
             meta = { "prompt" : d, "seed" : seed, "index": i }

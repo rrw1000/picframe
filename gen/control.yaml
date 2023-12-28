@@ -9,7 +9,14 @@ compose:
       - "otters"
       - "swans"
       - "cat"
+      - "owl"
+      - "panda"
+      - "woodland"
+      - "some owls with a santa hat on"
+      - "a wood in spring"
   - one_of:
       - "as a stained glass window"
       - "in the style of the impressionists"
       - "as a realistic photograph"
+
+      
