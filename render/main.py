@@ -65,7 +65,7 @@ while not done:
         uasyncio.get_event_loop().run_until_complete(netman.client(secrets.WIFI_SSID, secrets.WIFI_PASSWORD))
         done= True
     except Exception as e:
-        print(f"> {e}")
+        print(f"Conn> {e}")
         inky_frame.button_b.led_toggle()
         time.sleep(1.0)
     gc.collect()
@@ -85,14 +85,13 @@ while not done:
         data = bytearray(1024)
         with open(FILENAME, "wb") as f:
             while True:
-                print("X")
                 if img_socket.readinto(data) == 0:
                     break
                 f.write(data)
         img_socket.close()
         done = True
     except Exception as e:
-        print(f"> {e}")
+        print(f"DL> {e}")
         inky_frame.button_c.led_toggle()
         time.sleep(2.0)
     gc.collect()
@@ -107,7 +106,7 @@ inky_frame.button_e.led_on()
 graphics.update()
 
 inky_frame.button_a.led_off()
-network_manager.disconnect()
+netman.disconnect()
 print("Save state")
 save_state()
 
